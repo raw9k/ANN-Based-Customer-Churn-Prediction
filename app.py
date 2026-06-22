@@ -7,11 +7,9 @@ import pandas as pd
 import pickle
 import plotly.graph_objects as go
 
-# --- 1. PAGE CONFIGURATION ---
+
 st.set_page_config(page_title="Churn Predictor", page_icon="📊", layout="wide")
 
-# --- 2. CACHE MODEL & SCALER ---
-# This prevents TF from reloading on every single button click or slider move
 @st.cache_resource
 def load_assets():
     model = load_model("model.h5")
@@ -21,12 +19,10 @@ def load_assets():
 
 model, scaler = load_assets()
 
-# --- 3. HEADER & STYLING ---
 st.markdown("<h1 style='text-align: center; color: #1E88E5;'>🏦 Customer Churn Predictor</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 18px; color: gray;'>Enter customer demographics and account details below to predict their likelihood of leaving.</p>", unsafe_allow_html=True)
 st.divider()
 
-# --- 4. COLUMN LAYOUT FOR INPUTS ---
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -51,9 +47,6 @@ with col3:
     IsActiveMember = st.selectbox("Is Active Member", ["Yes", "No"])
 
 st.divider()
-
-# --- 5. PREDICTION BUTTON & OUTPUT ---
-# We put the button and the result in columns to center the visual output
 btn_col, chart_col = st.columns([1, 2])
 
 with btn_col:
@@ -61,7 +54,6 @@ with btn_col:
     predict_button = st.button("Predict Churn Probability", type="primary", use_container_width=True)
 
 if predict_button:
-    # Map UX strings back to model integers
     card_val = 1 if HasCrCard == "Yes" else 0
     active_val = 1 if IsActiveMember == "Yes" else 0
 
@@ -78,7 +70,6 @@ if predict_button:
         'EstimatedSalary': EstimatedSalary
     }
 
-    # Your exact preprocessing logic
     input_df = pd.DataFrame([input_data])
     input_df["Geography"] = pd.Categorical(
         input_df["Geography"], 
@@ -96,7 +87,6 @@ if predict_button:
     prediction = model.predict(scaled_input)
     predict_prob = prediction[0][0]
     
-    # --- 6. GAUGE CHART VISUALIZATION ---
     with chart_col:
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
